@@ -3,32 +3,42 @@ name: CI
 'on':
   pull_request:
   push:
-     branches:
-       - main
+    branches:
+      - main
   schedule:
-   - cron : " 0 2 * * *"
-   
+    - cron: "0 2 * * *"
+
 defaults:
-   run:
-     working-directory: 'nginx'
+  run:
+    working-directory: 'nginx'
+
 jobs:
-  molecule: 
+  molecule:
     name: Molecule
-    runs_on: ubuntu-latest
-
+    runs-on: ubuntu-18.04
     steps:
-     - name: check out the codepace
-       uses: actions@checkout@v2
-       with:
-         path: 'nginx'
-     - name: set up Python3.
-       uses: actions/setup-python@v2
-       with:
-         python: '3.x'
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+        with:
+          path: 'nginx'
 
-     - name: Install test dependencies
-       run: pip3 install ansible molecule[docker] docker
+      - name: Set up Python 3.
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
 
-     - name: run Molecule tests.
-       run: molecule test
-    
+      - name: Install test dependencies.
+        run: |
+          pip3 install ansible==2.10.7
+          pip3 install ansible-lint==5.3.2
+          pip3 install molecule-docker==0.2.4
+          pip3 install yamllint==1.26.1
+          pip3 install molecule==3.0.3
+          python3 -m site &> /dev/null && PATH="$PATH:`python3 -m site --user-base`/bin"
+          molecule --version
+          ansible --version
+
+      - name: Run Molecule tests.
+        run: |
+          molecule destroy --all
+          molecule test
