@@ -39,6 +39,4 @@ jobs:
           ansible --version
 
       - name: Run Molecule tests.
-        run: |
-          molecule destroy --all
-          molecule test
+        run:  molecule test
